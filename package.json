@@ -1,0 +1,20 @@
+{
+  "name": "paymentgatewaytest",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/the-wolfhead/paymentgatewaytest#readme",
+  "bugs": {
+    "url": "https://github.com/the-wolfhead/paymentgatewaytest/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-wolfhead/paymentgatewaytest.git"
+  },
+  "license": "ISC",
+  "author": "Daniel",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  }
+}
