@@ -23,7 +23,10 @@ const SECRET_KEY = process.env.PALMPAY_MERCHANT_PRIVATE_KEY;
 // SIGNATURE GENERATOR
 // =======================
 function generateSignature(payload) {
+  console.log("🔐 [SIGNATURE] Generating signature...");
+
   const sortedKeys = Object.keys(payload).sort();
+  console.log("🔐 [SIGNATURE] Sorted keys:", sortedKeys);
 
   let stringToSign = "";
 
@@ -35,17 +38,27 @@ function generateSignature(payload) {
 
   stringToSign = stringToSign.slice(0, -1);
 
-  return crypto
+  console.log("🔐 [SIGNATURE] String to sign:", stringToSign);
+
+  const signature = crypto
     .createHmac("sha256", SECRET_KEY)
     .update(stringToSign)
     .digest("hex")
     .toUpperCase();
+
+  console.log("🔐 [SIGNATURE] Generated signature:", signature);
+
+  return signature;
 }
 
 // =======================
 // CREATE ORDER ROUTE
 // =======================
 app.post("/api/create-order", async (req, res) => {
+  console.log("\n==============================");
+  console.log("🚀 [CREATE ORDER] Request received");
+  console.log("==============================");
+
   try {
     const {
       amount,
@@ -56,8 +69,12 @@ app.post("/api/create-order", async (req, res) => {
       currency = "NGN",
     } = req.body;
 
+    console.log("📦 [REQUEST BODY]", req.body);
+
     const orderId =
       "ORD_" + Date.now() + Math.floor(Math.random() * 1000);
+
+    console.log("🧾 [ORDER ID GENERATED]", orderId);
 
     const payload = {
       requestTime: Date.now(),
@@ -76,7 +93,12 @@ app.post("/api/create-order", async (req, res) => {
       productType: "bank_transfer",
     };
 
+    console.log("📤 [PAYLOAD TO PALMPAY]", payload);
+
     const signature = generateSignature(payload);
+
+    console.log("📡 [API CALL] Sending request to PalmPay...");
+    console.log("🔑 [HEADERS] Authorization + Signature attached");
 
     const response = await axios.post(PALMPAY_URL, payload, {
       headers: {
@@ -88,9 +110,21 @@ app.post("/api/create-order", async (req, res) => {
       },
     });
 
+    console.log("📥 [PALMPAY RESPONSE RECEIVED]");
+    console.log(JSON.stringify(response.data, null, 2));
+
+    console.log("✅ [SUCCESS] Checkout URL generated");
+
     return res.json(response.data);
   } catch (error) {
-    console.error("PalmPay Error:", error?.response?.data || error.message);
+    console.log("❌ [ERROR] Payment creation failed");
+
+    if (error?.response?.data) {
+      console.log("📛 [PALMPAY ERROR RESPONSE]");
+      console.log(error.response.data);
+    } else {
+      console.log("📛 [ERROR MESSAGE]", error.message);
+    }
 
     return res.status(500).json({
       message: "Payment initialization failed",
@@ -103,14 +137,22 @@ app.post("/api/create-order", async (req, res) => {
 // WEBHOOK (PAYMENT RESULT)
 // =======================
 app.post("/api/palmpay/webhook", (req, res) => {
-  console.log("Webhook received:", req.body);
+  console.log("\n==============================");
+  console.log("📩 [WEBHOOK RECEIVED]");
+  console.log("==============================");
+
+  console.log("📦 Payload:", req.body);
 
   // TODO:
-  // 1. verify signature (VERY IMPORTANT)
-  // 2. update payment status in DB
+  // 1. verify signature (IMPORTANT)
+  // 2. update DB payment status
   // 3. mark appointment as PAID
 
+  console.log("🔍 [WEBHOOK] Processing payment status...");
+
   res.send("success");
+
+  console.log("✅ [WEBHOOK] Response sent to PalmPay");
 });
 
 // =======================
@@ -119,5 +161,7 @@ app.post("/api/palmpay/webhook", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("\n==============================");
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log("==============================\n");
 });
