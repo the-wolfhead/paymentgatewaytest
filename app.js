@@ -111,9 +111,29 @@ app.post("/api/create-order", async (req, res) => {
     });
 
     console.log("📥 [PALMPAY RESPONSE RECEIVED]");
-    console.log(JSON.stringify(response.data, null, 2));
+console.log(JSON.stringify(response.data, null, 2));
 
-    console.log("✅ [SUCCESS] Checkout URL generated");
+const palmpayData = response.data;
+
+if (palmpayData?.respCode !== "00000000") {
+  console.log("❌ [PALMPAY REJECTED REQUEST]");
+  console.log("Code:", palmpayData?.respCode);
+  console.log("Message:", palmpayData?.respMsg);
+
+  return res.status(400).json({
+    success: false,
+    message: palmpayData?.respMsg || "PalmPay error",
+    code: palmpayData?.respCode,
+    raw: palmpayData,
+  });
+}
+
+console.log("✅ [PALMPAY SUCCESS] Order created");
+
+return res.json({
+  success: true,
+  data: palmpayData.data,
+});
 
     return res.json(response.data);
   } catch (error) {
