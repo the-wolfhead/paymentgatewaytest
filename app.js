@@ -16,7 +16,7 @@ app.use(express.json());
 const PALMPAY_URL =
   "https://open-gw-daily.palmpay-inc.com/api/v2/payment/merchant/createorder";
 
-const MERCHANT_TOKEN = process.env.PALMPAY_PUBLIC_KEY;
+const MERCHANT_TOKEN = process.env.PALMPAY_AUTH_TOKEN;
 const SECRET_KEY = process.env.PALMPAY_MERCHANT_PRIVATE_KEY;
 
 // =======================
